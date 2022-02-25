@@ -3,7 +3,7 @@
  */
 
 const express = require("express");
-const { getPublicMessage, getProtectedMessage, getUser } = require("./endpointFuncs");
+const { getPublicMessage, getProtectedMessage, getUser, createMessage } = require("./endpointFuncs");
 const { checkJwt } = require("../authz/check-jwt");
 const serviceAccount = require('../firebase/firebase-key');
 const firebaseAdmin = require('firebase-admin');
@@ -11,6 +11,12 @@ const firebaseAdmin = require('firebase-admin');
 firebaseAdmin.initializeApp({
     credential: firebaseAdmin.credential.cert(serviceAccount),
     databaseURL: `https://${serviceAccount.project_id}.firebaseio.com`
+});
+
+let messagesDb = firebaseAdmin.firestore();
+
+messagesDb.settings({
+    timestampsInSnapshots: true
 });
 
 /**
@@ -44,9 +50,9 @@ endpointsRouter.get('/firebase', checkJwt, async (req, res) => {
     const { sub: uid } = req.user;
 
     try {
-        const firebaseToken = await firebaseAdmin.auth().createCustomToken(uid);
+        firebaseToken = await firebaseAdmin.auth().createCustomToken(uid);
         res.json({ firebaseToken });
-        console.log(firebaseToken);
+        createMessage(req.headers, messagesDb);
     } catch (err) {
         res.status(500).send({
             message: 'Something went wrong acquiring a Firebase token.',
@@ -56,5 +62,5 @@ endpointsRouter.get('/firebase', checkJwt, async (req, res) => {
 });
 
 module.exports = {
-    endpointsRouter,
+    endpointsRouter
 };

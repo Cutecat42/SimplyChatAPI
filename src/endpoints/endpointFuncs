@@ -34,16 +34,32 @@ const getUser = (auth) => {
         console.error(error);
     });
 
-
-
-
     return {
         message: "user",
     };
+};
+
+const createMessage = async (headers, messagesDb) => {
+    try {
+        const createdAt = new Date();
+        const { author, message } = headers;
+
+        return await messagesDb.collection('messages').add({
+            author,
+            createdAt,
+            message,
+        });
+
+    }
+    catch (err) {
+        console.log(err)
+    }
+
 };
 
 module.exports = {
     getPublicMessage,
     getProtectedMessage,
     getUser,
+    createMessage,
 };
