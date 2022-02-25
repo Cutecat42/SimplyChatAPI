@@ -1,0 +1,49 @@
+const getPublicMessage = () => {
+    return {
+        message: "Yo",
+    };
+};
+
+const getProtectedMessage = () => {
+    return {
+        message: "I'm protecccted",
+    };
+};
+
+const getUser = (auth) => {
+    const axios = require("axios").default;
+
+    const options = {
+        method: 'POST',
+        url: `https://${process.env.AUTH0_DOMAIN}/oauth/token`,
+        headers: {
+            'content-type': 'application/x-www-form-urlencoded',
+            Authorization: `Bearer ${auth}`
+        },
+        data: {
+            grant_type: 'client_credentials',
+            client_id: `${process.env.CLIENT_ID}`,
+            client_secret: `${process.env.CLIENT_SECRET}`,
+            audience: `https://${process.env.AUTH0_DOMAIN}/api/v2/`
+        }
+    };
+
+    axios.request(options).then(function (response) {
+        console.log(response.data);
+    }).catch(function (error) {
+        console.error(error);
+    });
+
+
+
+
+    return {
+        message: "user",
+    };
+};
+
+module.exports = {
+    getPublicMessage,
+    getProtectedMessage,
+    getUser,
+};
